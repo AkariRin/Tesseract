@@ -140,9 +140,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // Mekanism - Strong dependency (declared in mods.toml as mandatory runtime dependency)
-    // For development: place Mekanism jar in the run/mods folder
-    // Uncomment below for compile-time access to Mekanism APIs:
-    // implementation fg.deobf("curse.maven:mekanism-268560:${mekanism_file_id}")
+    // Using fg.deobf() to automatically deobfuscate the mod for development
+    implementation fg.deobf("curse.maven:mekanism-268560:5722742")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
