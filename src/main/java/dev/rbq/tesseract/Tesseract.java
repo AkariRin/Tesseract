@@ -1,6 +1,8 @@
 package dev.rbq.tesseract;
 
 import com.mojang.logging.LogUtils;
+import dev.rbq.tesseract.block.TesseractBlock;
+import dev.rbq.tesseract.init.ModBlockEntities;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,6 +16,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -30,7 +33,7 @@ public class Tesseract {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     // 超维立方：方块
-    public static final RegistryObject<Block> TESSERACT_BLOCK = BLOCKS.register("tesseract", () -> new Block(
+    public static final RegistryObject<Block> TESSERACT_BLOCK = BLOCKS.register("tesseract", () -> new TesseractBlock(
             BlockBehaviour.Properties.of()
                     .mapColor(MapColor.METAL)
                     .strength(100.0f, 3600000.0f) // 硬度100，爆炸抗性3600000
@@ -54,10 +57,13 @@ public class Tesseract {
                 output.accept(TESSERACT_BLOCK_ITEM.get());
             }).build());
 
-    public Tesseract(IEventBus modEventBus) {
+    public Tesseract() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
     }
