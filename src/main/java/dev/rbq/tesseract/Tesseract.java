@@ -22,6 +22,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -68,11 +69,11 @@ public class Tesseract {
     public static final RegistryObject<CreativeModeTab> TESSERACT_TAB = CREATIVE_MODE_TABS.register("tesseract_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.FUNCTIONAL_BLOCKS)
             .icon(() -> TESSERACT_BLOCK_ITEM.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(TESSERACT_BLOCK_ITEM.get());
-            }).build());
+            .displayItems((parameters, output) -> output.accept(TESSERACT_BLOCK_ITEM.get())).build());
 
-    public Tesseract(IEventBus modEventBus) {
+    public Tesseract() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
