@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Collect artifacts
+        id: artifacts
+        run: |
+          # 排除 -dev、-sources、-slim 等附产物，只保留主 jar
+          JARS=$(ls build/libs/*.jar | grep -Ev '\-(dev|sources|slim|all)\.jar$')
+          echo "Found jars: $JARS"
+          echo "jars=$JARS" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: ${{ steps.artifacts.outputs.jars }}

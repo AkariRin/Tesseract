@@ -4,12 +4,19 @@ import dev.rbq.tesseract.Tesseract;
 import dev.rbq.tesseract.block.entity.TesseractBlockEntity;
 import dev.rbq.tesseract.inventory.TesseractDashboardContainer;
 import dev.rbq.tesseract.inventory.TesseractDriveArrayContainer;
+import mekanism.common.block.attribute.AttributeGui;
+import mekanism.common.block.attribute.Attributes;
 import mekanism.common.block.interfaces.IHasTileEntity;
+import mekanism.common.block.interfaces.ITypeBlock;
+import mekanism.common.content.blocktype.BlockType;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
 import mekanism.common.tile.base.TileEntityMekanism;
+import mekanism.common.util.WorldUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -35,9 +42,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 超维立方方块 - 带有末地传送门样式的渲染效果 + QIO 存储功能
  */
-public class TesseractBlock extends BaseEntityBlock implements IHasTileEntity<TesseractBlockEntity> {
+public class TesseractBlock extends BaseEntityBlock implements IHasTileEntity<TesseractBlockEntity>, ITypeBlock {
 
     private TileEntityTypeRegistryObject<TesseractBlockEntity> tileType;
+    private BlockType blockType;
 
     @Override
     public TileEntityTypeRegistryObject<? extends TesseractBlockEntity> getTileType() {
@@ -45,6 +53,22 @@ public class TesseractBlock extends BaseEntityBlock implements IHasTileEntity<Te
             tileType = new TileEntityTypeRegistryObject<>(Tesseract.TESSERACT_BLOCK_ENTITY);
         }
         return tileType;
+    }
+
+    /**
+     * 实现 ITypeBlock 接口，向 Mekanism 暴露 GUI 和安全属性。
+     * 这使 TileEntityMekanism.setSupportedTypes() 能正确识别 hasGui 和 hasSecurity。
+     */
+    @Override
+    public BlockType getType() {
+        if (blockType == null) {
+            blockType = new BlockType(() -> "block.tesseract.tesseract");
+            // 添加 GUI 属性 → hasGui = true，unlocks MekanismTileContainer.stillValid()
+            blockType.add(new AttributeGui(() -> Tesseract.TESSERACT_DASHBOARD, null));
+            // 添加安全属性 → hasSecurity = true，unlocks GuiSecurityTab 功能
+            blockType.add(Attributes.SECURITY);
+        }
+        return blockType;
     }
 
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
@@ -74,6 +98,20 @@ public class TesseractBlock extends BaseEntityBlock implements IHasTileEntity<Te
     @Override
     public TesseractBlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return TesseractBlockEntity.create(pos, state);
+    }
+
+    /**
+     * 放置方块时设置安全系统拥有者（UUID），使安全标签显示正确的玩家名。
+     * BaseEntityBlock 不继承 BlockMekanism，必须手动实现此逻辑。
+     */
+    @Override
+    public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+            @Nullable LivingEntity placer, @NotNull ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        TileEntityMekanism tile = WorldUtils.getTileEntity(TileEntityMekanism.class, level, pos);
+        if (tile != null && tile.hasSecurity() && placer != null) {
+            tile.setOwnerUUID(placer.getUUID());
+        }
     }
 
     /**

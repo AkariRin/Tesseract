@@ -51,13 +51,16 @@ public class TesseractBlockEntity extends TileEntityQIOComponent
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
         InventorySlotHelper builder = InventorySlotHelper.forSide(this::getDirection);
         driveSlots = new ArrayList<>();
-        // 12个驱动器槽（2列 x 6行）
-        for (int i = 0; i < DRIVE_SLOTS; i++) {
-            int x = 8 + (i % 2) * 18;
-            int y = 18 + (i / 2) * 18;
-            QIODriveSlot slot = new QIODriveSlot(this, i, listener, x, y);
-            driveSlots.add(slot);
-            builder.addSlot(slot);
+        // 12个驱动器槽（6列 x 2行），与 TileEntityQIODriveArray 原版布局一致
+        final int xSize = 176;
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 6; col++) {
+                int x = xSize / 2 - (6 * 18 / 2) + col * 18;
+                int y = 70 + row * 18;
+                QIODriveSlot slot = new QIODriveSlot(this, row * 6 + col, listener, x, y);
+                driveSlots.add(slot);
+                builder.addSlot(slot);
+            }
         }
         // 添加合成窗口槽位（用于 NBT 持久化）
         for (QIOCraftingWindow window : craftingWindows) {

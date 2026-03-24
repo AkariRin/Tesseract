@@ -4,7 +4,6 @@ import dev.rbq.tesseract.block.entity.TesseractBlockEntity;
 import dev.rbq.tesseract.inventory.TesseractDriveArrayContainer;
 import mekanism.client.gui.GuiMekanismTile;
 import mekanism.client.gui.element.custom.GuiQIOFrequencyDataScreen;
-import mekanism.client.gui.element.tab.GuiQIOFrequencyTab;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -25,9 +24,8 @@ public class GuiTesseractDriveArray extends GuiMekanismTile<TesseractBlockEntity
     @Override
     protected void addGuiElements() {
         super.addGuiElements();
-        // 添加 QIO 频率选择标签
-        addRenderableWidget(new GuiQIOFrequencyTab(this, tile));
-        // 添加频率数据显示屏（x=15, y=19, width=imageWidth-32, height=46）
+        // 仅添加频率数据显示屏（只读），频率配置通过仪表板完成
+        // 移除 GuiQIOFrequencyTab 避免返回按钮导航到错误的 GUI
         addRenderableWidget(new GuiQIOFrequencyDataScreen(
             this, 15, 19, imageWidth - 32, 46,
             tile::getQIOFrequency
