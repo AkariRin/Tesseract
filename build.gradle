@@ -66,8 +66,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly "mekanism:Mekanism:${mekanism_version}:api"
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
+    implementation fg.deobf("mekanism:Mekanism:${mekanism_version}")
 }
 
 tasks.named('processResources', ProcessResources).configure {
